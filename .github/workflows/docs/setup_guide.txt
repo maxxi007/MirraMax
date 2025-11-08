@@ -1,0 +1,36 @@
+MirraMax Quick Start Guide
+--------------------------
+
+Prerequisites (Windows):
+- ADB (platform-tools) installed and in PATH.
+- FFmpeg/ffplay installed (add to PATH). Prefer a build with NVIDIA support (ffmpeg compiled with --enable-cuda --enable-cuvid --enable-nvenc).
+- USB cable (USB 3 recommended).
+- Poco F5: Developer Options -> USB Debugging enabled.
+
+Step 1: Get builds from GitHub Actions
+- After pushing repo, run Actions workflow.
+- Download artifacts:
+  - MirraMax_Android_apk (app-debug.apk)
+  - MirraMax_PC.zip (contains run_mirror.bat, ffplay wrapper, control-client.py)
+
+Step 2: Install Android APK
+- adb install -r MirraMax_Android.apk
+- On phone: allow USB debugging and allow screen capture when prompted.
+
+Step 3: Forward ports (USB)
+- On PC open terminal:
+  adb forward tcp:5004 tcp:5004
+  adb forward tcp:5005 tcp:5005
+
+Step 4: Start Windows receiver
+- Unzip MirraMax_PC.zip
+- Double-click run_mirror.bat
+- The script starts ffplay to receive video and also launches control client examples.
+
+Controls:
+- Press R to start/stop recording (if enabled)
+- Use control-client.py to send tap/swipe/key events (see examples in the script).
+
+Notes:
+- If HEVC hardware decode on Windows is missing, install "HEVC Video Extensions" from Microsoft Store.
+- If ffplay playback fails, try editing ffplay_wrapper.bat to change hwaccel flags (it tries NVIDIA CUVID first).
