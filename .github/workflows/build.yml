@@ -1,0 +1,56 @@
+name: Build MirraMax
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: 35
+          ndk: 25.2.9519653
+          components: build-tools;35.0.0,platforms;android-35
+
+      - name: Build Debug APK
+        run: |
+          cd android_app
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MirraMax_Android_apk
+          path: android_app/app/build/outputs/apk/debug/app-debug.apk
+
+  package-windows:
+    name: Package Windows Receiver
+    runs-on: windows-latest
+    needs: [ build-android ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create ZIP of windows_receiver
+        run: |
+          powershell -Command "Compress-Archive -Path windows_receiver/* -DestinationPath MirraMax_PC.zip"
+
+      - name: Upload Windows ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: MirraMax_PC_zip
+          path: MirraMax_PC.zip
